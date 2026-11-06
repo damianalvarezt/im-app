@@ -40,6 +40,8 @@
     // ?instalar: se queda en esta página para poder "Agregar a pantalla de inicio" con el ícono.
     if (/instalar/.test(location.search)) {
       document.querySelector('p').textContent = 'Toca Compartir → Agregar a pantalla de inicio. Luego entra con el botón.';
+      // El acceso directo debe guardar la dirección limpia (sin ?instalar) para que abra la app directo.
+      try { history.replaceState(null, '', location.pathname); } catch (e) {}
     } else {
       location.replace(APP);
     }
