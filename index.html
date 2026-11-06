@@ -33,11 +33,16 @@
 </main>
 <script>
   // Única dirección de la app (la misma que ya tiene el equipo). No contiene datos ni claves.
-  var APP = 'PEGAR_AQUI/exec?app';
+  var APP = 'https://script.google.com/macros/s/AKfycbwx5dVRtiMdf1LwXNkhXkhAoQt-VVjq6vHr4d5jpD7unWbl6t6mJLILWZUEeo97Dxht3A/exec?app';
   var ir = document.getElementById('ir');
   if (/^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec\?app$/.test(APP)) {
     ir.href = APP;
-    location.replace(APP);
+    // ?instalar: se queda en esta página para poder "Agregar a pantalla de inicio" con el ícono.
+    if (/instalar/.test(location.search)) {
+      document.querySelector('p').textContent = 'Toca Compartir → Agregar a pantalla de inicio. Luego entra con el botón.';
+    } else {
+      location.replace(APP);
+    }
   } else {
     ir.textContent = 'Falta configurar la dirección';
   }
