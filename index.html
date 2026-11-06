@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<title>I+M Mantención</title>
+<meta name="apple-mobile-web-app-title" content="I+M Mantención">
+<meta name="application-name" content="I+M Mantención">
+<meta name="theme-color" content="#24585e">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/svg+xml" href="icono.svg">
+<link rel="manifest" href="manifest.json">
+<style>
+  :root { --fondo: #24585e; --claro: #7cc4c8; --texto: #ffffff; }
+  html, body { margin: 0; height: 100%; background: var(--fondo); color: var(--texto);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  main { min-height: 100%; display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 18px; padding: 24px 16px; box-sizing: border-box; text-align: center; }
+  img { width: 96px; height: 96px; border-radius: 22px; }
+  p { margin: 0; opacity: .85; }
+  a { color: var(--fondo); background: var(--claro); padding: 12px 22px; border-radius: 12px;
+    font-weight: 600; text-decoration: none; }
+</style>
+</head>
+<body>
+<main>
+  <img src="icono-192.png" alt="">
+  <p>Abriendo I+M Mantención…</p>
+  <a id="ir" href="#">Entrar</a>
+</main>
+<script>
+  // Única dirección de la app (la misma que ya tiene el equipo). No contiene datos ni claves.
+  var APP = 'PEGAR_AQUI/exec?app';
+  var ir = document.getElementById('ir');
+  if (/^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec\?app$/.test(APP)) {
+    ir.href = APP;
+    location.replace(APP);
+  } else {
+    ir.textContent = 'Falta configurar la dirección';
+  }
+</script>
+</body>
+</html>
