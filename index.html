@@ -60,7 +60,6 @@
   // iPhone/iPad: Safari no guarda la clave ni el patrón dentro de una app instalada con la app de Google adentro.
   // Por eso en Apple se usa la página ios.html: mismo ícono, pero abre la app en Safari (ahí sí se guarda todo).
   var esIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-  if (esIOS) { location.replace('ios.html' + location.search); }
   var fr = document.getElementById('app'), carga = document.getElementById('carga'), ir = document.getElementById('ir');
   var ok = /^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec\?app$/.test(APP);
   if (ok) {
@@ -74,6 +73,13 @@
   // la app pide recargar (botón ↻ adentro): se vuelve a pedir a Google desde aquí
   window.addEventListener('message', function (e) {
     var deGoogle = e.origin === 'https://script.google.com' || /\.googleusercontent\.com$/.test(e.origin);
+    // memoria de la app (clave, patrón, preferencias): se guarda aquí, en el origen propio, porque en iPhone la app de adentro no puede guardar nada
+    if (deGoogle && e.data && e.data.im === 'ls-get') {
+      var d = {}; try { for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); if (k.indexOf('app:') === 0) d[k.slice(4)] = localStorage.getItem(k); } } catch (x) {}
+      try { e.source.postMessage({ im: 'ls-datos', datos: d }, e.origin); } catch (x) {}
+    }
+    if (deGoogle && e.data && e.data.im === 'ls-set') { try { localStorage.setItem('app:' + e.data.k, String(e.data.v)); } catch (x) {} }
+    if (deGoogle && e.data && e.data.im === 'ls-del') { try { localStorage.removeItem('app:' + e.data.k); } catch (x) {} }
     if (deGoogle && e.data && e.data.im === 'listo') { carga.classList.add('off'); ir.hidden = true; }
     if (deGoogle && e.data && e.data.im === 'recargar' && ok) { carga.classList.remove('off'); fr.src = 'about:blank'; setTimeout(function () { fr.src = APP; }, 50); }
   });
