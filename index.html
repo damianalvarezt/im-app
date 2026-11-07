@@ -21,8 +21,9 @@
   html, body { margin: 0; height: 100%; background: var(--fondo); color: var(--texto); overflow: hidden;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
   /* la app de Google ocupa toda la pantalla; en iPhone instalado respeta la muesca */
-  #app { position: fixed; inset: 0; width: 100%; height: 100%; border: 0; background: #0e1112;
-    padding-top: env(safe-area-inset-top, 0px); box-sizing: border-box; }
+  #app { position: fixed; left: 0; right: 0; top: env(safe-area-inset-top, 0px); bottom: 0; width: 100%;
+    height: calc(100% - env(safe-area-inset-top, 0px)); border: 0; background: #0e1112; }
+  body { background: #0e1112; }
   #carga { position: fixed; inset: 0; background: var(--fondo); z-index: 3; display: flex; flex-direction: column; align-items: center; justify-content: center;
     gap: 16px; text-align: center; padding: 24px 16px; transition: opacity .3s; }
   #carga.off { opacity: 0; pointer-events: none; }
