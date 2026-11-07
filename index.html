@@ -68,6 +68,11 @@
   } else {
     carga.querySelector('p').textContent = 'Falta configurar la dirección';
   }
+  // la app pide recargar (botón ↻ adentro): se vuelve a pedir a Google desde aquí
+  window.addEventListener('message', function (e) {
+    var deGoogle = e.origin === 'https://script.google.com' || /\.googleusercontent\.com$/.test(e.origin);
+    if (deGoogle && e.data && e.data.im === 'recargar' && ok) { carga.classList.remove('off'); fr.src = 'about:blank'; setTimeout(function () { fr.src = APP; }, 50); }
+  });
   // ---- instalación como app ----
   var instalada = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
   var esIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
