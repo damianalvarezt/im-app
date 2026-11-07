@@ -28,6 +28,11 @@ document.body.innerHTML="<iframe id=\"app\" title=\"I+M Mantenci\u00f3n\" allow=
     }
     if (deGoogle && e.data && e.data.im === 'ls-set') { try { localStorage.setItem('app:' + e.data.k, String(e.data.v)); } catch (x) {} }
     if (deGoogle && e.data && e.data.im === 'ls-del') { try { localStorage.removeItem('app:' + e.data.k); } catch (x) {} }
+    // vibración: Chrome no deja vibrar a la app de adentro (va en un marco de Google), así que vibra esta página por ella
+    if (deGoogle && e.data && e.data.im === 'vibrar' && navigator.vibrate) {
+      var p = e.data.p; p = Array.isArray(p) ? p.slice(0, 10).map(function (n) { return Math.max(0, Math.min(1000, +n || 0)); }) : Math.max(0, Math.min(1000, +p || 0));
+      try { navigator.vibrate(p); } catch (x) {}
+    }
     if (deGoogle && e.data && e.data.im === 'listo') { carga.classList.add('off'); ir.hidden = true; }
     if (deGoogle && e.data && e.data.im === 'recargar' && ok) { carga.classList.remove('off'); fr.src = 'about:blank'; setTimeout(function () { fr.src = APP; }, 50); }
   });
