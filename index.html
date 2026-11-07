@@ -16,6 +16,8 @@
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="icon" type="image/svg+xml" href="icono.svg">
 <link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700&display=swap">
 <style>
   :root { --fondo: #24585e; --claro: #7cc4c8; --texto: #ffffff; }
   html, body { margin: 0; height: 100%; background: var(--fondo); color: var(--texto); overflow: hidden;
@@ -27,44 +29,41 @@
   #carga { position: fixed; inset: 0; background: var(--fondo); z-index: 3; display: flex; flex-direction: column; align-items: center; justify-content: center;
     gap: 16px; text-align: center; padding: 24px 16px; transition: opacity .3s; }
   #carga.off { opacity: 0; pointer-events: none; }
-  /* animación de carga: llave apretando una tuerca */
-  .llv{width:132px;height:132px;display:block}
-.llv .tuerca{transform-origin:60px 60px;animation:tuerca 1.6s cubic-bezier(.3,0,.2,1) infinite}
-.llv .llave{transform-origin:60px 60px;animation:llave 1.6s cubic-bezier(.3,0,.2,1) infinite}
+  /* animación de carga: la llave aprieta la tuerca del «+» de I+M */
+  .llv{width:200px;height:166px;display:block;font-family:"Barlow Condensed","Arial Narrow","Liberation Sans Narrow","DejaVu Sans Condensed",system-ui,sans-serif;font-weight:700}
+.llv .tuerca{transform-origin:112px 72px;animation:tuerca 1.6s cubic-bezier(.3,0,.2,1) infinite}
+.llv .llave{transform-origin:112px 72px;animation:llave 1.6s cubic-bezier(.3,0,.2,1) infinite}
+.llv .li{transform-origin:56px 98px;animation:li 1.6s cubic-bezier(.3,0,.2,1) infinite}
+.llv .lm{transform-origin:170px 98px;animation:lm 1.6s cubic-bezier(.3,0,.2,1) infinite}
 @keyframes tuerca{0%{transform:rotate(0)}45%{transform:rotate(60deg)}100%{transform:rotate(60deg)}}
-@keyframes llave{0%{transform:rotate(-30deg) translate(0,0)}45%{transform:rotate(30deg) translate(0,0)}52%{transform:rotate(30deg) translate(0,0)}
-  60%{transform:rotate(30deg) translate(-6px,6px)}72%{transform:rotate(-30deg) translate(-6px,6px)}80%{transform:rotate(-30deg) translate(0,0)}100%{transform:rotate(-30deg) translate(0,0)}}
-@media (prefers-reduced-motion:reduce){.llv .tuerca,.llv .llave{animation:none}}
-
-  #carga p { margin: 0; opacity: .85; }
-  .btn { color: var(--fondo); background: var(--claro); padding: 12px 22px; border-radius: 12px; font-weight: 600;
-    text-decoration: none; border: 0; font: inherit; font-weight: 600; cursor: pointer; }
-  /* aviso de instalación (solo cuando se abre en el navegador, no instalada) */
-  #inst { position: fixed; left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom, 0px)); z-index: 5;
-    background: #1f2527; color: #eef1f0; border: 1px solid #343d40; border-radius: 14px; padding: 12px 14px;
-    display: none; align-items: center; gap: 12px; box-shadow: 0 10px 30px rgba(0,0,0,.4); font-size: 15px; }
-  #inst.on { display: flex; }
-  #inst img { width: 40px; height: 40px; border-radius: 10px; flex: none; }
-  #inst div { flex: 1; min-width: 0; line-height: 1.3; }
-  #inst small { display: block; opacity: .8; font-size: 13px; }
-  #inst .x { background: transparent; color: #a3acae; border: 0; font-size: 20px; padding: 4px 8px; cursor: pointer; }
+@keyframes llave{0%{transform:rotate(-22deg) translate(0,0)}45%{transform:rotate(38deg) translate(0,0)}52%{transform:rotate(38deg) translate(0,0)}
+  60%{transform:rotate(38deg) translate(0,10px)}72%{transform:rotate(-22deg) translate(0,10px)}80%{transform:rotate(-22deg) translate(0,0)}100%{transform:rotate(-22deg) translate(0,0)}}
+/* las letras reciben el apretón: se inclinan hacia afuera y vuelven */
+@keyframes li{0%,30%{transform:rotate(0) scale(1)}45%{transform:rotate(-9deg) scale(1,.94)}58%{transform:rotate(2deg) scale(1,1.02)}68%,100%{transform:rotate(0) scale(1)}}
+@keyframes lm{0%,30%{transform:rotate(0) scale(1)}45%{transform:rotate(9deg) scale(1,.94)}58%{transform:rotate(-2deg) scale(1,1.02)}68%,100%{transform:rotate(0) scale(1)}}
+@media (prefers-reduced-motion:reduce){.llv .tuerca,.llv .llave,.llv .li,.llv .lm{animation:none}}
 </style>
 </head>
 <body>
 <iframe id="app" title="I+M Mantención" allow="camera; microphone; geolocation; clipboard-read; clipboard-write; fullscreen; web-share" allowfullscreen></iframe>
 <div id="carga">
-  <svg class="llv" viewBox="0 0 120 120" aria-hidden="true">
-  <!-- llave de boca: la boca abraza las dos caras planas de la tuerca; mango hacia abajo -->
+  <svg class="llv" viewBox="0 0 240 200" aria-hidden="true">
+  <!-- I + M: el «+» es la tuerca que aprieta la llave -->
+  <text class="li" x="56" y="98" font-size="76" fill="#ffffff" text-anchor="middle">I</text>
+  <text class="lm" x="170" y="98" font-size="76" fill="#ffffff" text-anchor="middle">M</text>
+  <!-- llave de boca: cabeza alrededor de la tuerca, mango largo hacia abajo -->
   <g class="llave">
-    <mask id="boca"><rect width="120" height="120" fill="#fff"/><rect x="41" y="14" width="38" height="62" fill="#000"/></mask>
-    <circle cx="60" cy="60" r="29" fill="#ffffff" mask="url(#boca)"/>
-    <path d="M60 86 L60 110" stroke="#ffffff" stroke-width="16" stroke-linecap="round"/>
+    <mask id="boca"><rect width="240" height="200" fill="#fff"/><rect x="98" y="30" width="28" height="54" fill="#000"/></mask>
+    <circle cx="112" cy="72" r="22" fill="#dfe9ea" mask="url(#boca)"/>
+    <path d="M112 90 L112 178" stroke="#dfe9ea" stroke-width="12" stroke-linecap="round"/>
+    <path d="M112 100 L112 170" stroke="#ffffff" stroke-width="3" stroke-linecap="round" opacity=".7"/>
+    <circle cx="112" cy="176" r="4" fill="#24585e" opacity=".35"/>
   </g>
   <!-- tuerca -->
   <g class="tuerca">
-    <polygon points="60,38 79,49 79,71 60,82 41,71 41,49" fill="#7cc4c8"/>
-    <polygon points="60,44 74,52 74,68 60,76 46,68 46,52" fill="#5ea6ab"/>
-    <circle cx="60" cy="60" r="7" fill="#24585e"/>
+    <polygon points="112,56 126,64 126,80 112,88 98,80 98,64" fill="#7cc4c8"/>
+    <polygon points="112,61 122,66.5 122,77.5 112,83 102,77.5 102,66.5" fill="#5ea6ab"/>
+    <circle cx="112" cy="72" r="5" fill="#24585e"/>
   </g>
 </svg>
   <p>Abriendo I+M Mantención…</p>
