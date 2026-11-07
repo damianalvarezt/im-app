@@ -57,6 +57,10 @@
 <script>
   // Única dirección de la app (la misma que ya tiene el equipo). Esta página no contiene datos ni claves.
   var APP = 'https://script.google.com/macros/s/AKfycbwx5dVRtiMdf1LwXNkhXkhAoQt-VVjq6vHr4d5jpD7unWbl6t6mJLILWZUEeo97Dxht3A/exec?app';
+  // iPhone/iPad: Safari no guarda la clave ni el patrón dentro de una app instalada con la app de Google adentro.
+  // Por eso en Apple se usa la página ios.html: mismo ícono, pero abre la app en Safari (ahí sí se guarda todo).
+  var esIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  if (esIOS) { location.replace('ios.html' + location.search); }
   var fr = document.getElementById('app'), carga = document.getElementById('carga'), ir = document.getElementById('ir');
   var ok = /^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec\?app$/.test(APP);
   if (ok) {
@@ -75,7 +79,6 @@
   });
   // ---- instalación como app ----
   var instalada = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
-  var esIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   var inst = document.getElementById('inst'), instB = document.getElementById('instB'), instS = document.getElementById('instS');
   var pedirInst = null, pedido = /instalar/.test(location.search);
   if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').catch(function () {}); }
