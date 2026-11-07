@@ -27,7 +27,15 @@
   #carga { position: fixed; inset: 0; background: var(--fondo); z-index: 3; display: flex; flex-direction: column; align-items: center; justify-content: center;
     gap: 16px; text-align: center; padding: 24px 16px; transition: opacity .3s; }
   #carga.off { opacity: 0; pointer-events: none; }
-  #carga img { width: 96px; height: 96px; border-radius: 22px; }
+  /* animación de carga: llave apretando una tuerca */
+  .llv{width:132px;height:132px;display:block}
+.llv .tuerca{transform-origin:60px 60px;animation:tuerca 1.6s cubic-bezier(.3,0,.2,1) infinite}
+.llv .llave{transform-origin:60px 60px;animation:llave 1.6s cubic-bezier(.3,0,.2,1) infinite}
+@keyframes tuerca{0%{transform:rotate(0)}45%{transform:rotate(60deg)}100%{transform:rotate(60deg)}}
+@keyframes llave{0%{transform:rotate(-30deg) translate(0,0)}45%{transform:rotate(30deg) translate(0,0)}52%{transform:rotate(30deg) translate(0,0)}
+  60%{transform:rotate(30deg) translate(-6px,6px)}72%{transform:rotate(-30deg) translate(-6px,6px)}80%{transform:rotate(-30deg) translate(0,0)}100%{transform:rotate(-30deg) translate(0,0)}}
+@media (prefers-reduced-motion:reduce){.llv .tuerca,.llv .llave{animation:none}}
+
   #carga p { margin: 0; opacity: .85; }
   .btn { color: var(--fondo); background: var(--claro); padding: 12px 22px; border-radius: 12px; font-weight: 600;
     text-decoration: none; border: 0; font: inherit; font-weight: 600; cursor: pointer; }
@@ -45,7 +53,20 @@
 <body>
 <iframe id="app" title="I+M Mantención" allow="camera; microphone; geolocation; clipboard-read; clipboard-write; fullscreen; web-share" allowfullscreen></iframe>
 <div id="carga">
-  <img src="icono-192.png" alt="">
+  <svg class="llv" viewBox="0 0 120 120" aria-hidden="true">
+  <!-- llave de boca: la boca abraza las dos caras planas de la tuerca; mango hacia abajo -->
+  <g class="llave">
+    <mask id="boca"><rect width="120" height="120" fill="#fff"/><rect x="41" y="14" width="38" height="62" fill="#000"/></mask>
+    <circle cx="60" cy="60" r="29" fill="#ffffff" mask="url(#boca)"/>
+    <path d="M60 86 L60 110" stroke="#ffffff" stroke-width="16" stroke-linecap="round"/>
+  </g>
+  <!-- tuerca -->
+  <g class="tuerca">
+    <polygon points="60,38 79,49 79,71 60,82 41,71 41,49" fill="#7cc4c8"/>
+    <polygon points="60,44 74,52 74,68 60,76 46,68 46,52" fill="#5ea6ab"/>
+    <circle cx="60" cy="60" r="7" fill="#24585e"/>
+  </g>
+</svg>
   <p>Abriendo I+M Mantención…</p>
   <a class="btn" id="ir" href="#" hidden>Entrar</a>
 </div>
