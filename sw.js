@@ -1,6 +1,6 @@
 // Service worker mínimo: hace instalable la app y guarda solo esta página de entrada y sus íconos.
 // La app de Google nunca se guarda aquí (siempre se pide en vivo).
-var CACHE = 'im-app-v2';
+var CACHE = 'im-app-v3';
 var ARCHIVOS = ['./', './index.html', './entrada.js', './manifest.json', './icono-192.png', './icono-512.png', './apple-touch-icon.png', './favicon-32.png', './icono.svg'];
 self.addEventListener('install', function (e) { e.waitUntil(caches.open(CACHE).then(function (c) { return c.addAll(ARCHIVOS); }).then(function () { return self.skipWaiting(); })); });
 self.addEventListener('activate', function (e) { e.waitUntil(caches.keys().then(function (ks) { return Promise.all(ks.filter(function (k) { return k !== CACHE; }).map(function (k) { return caches.delete(k); })); }).then(function () { return self.clients.claim(); })); });
