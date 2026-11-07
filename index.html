@@ -18,108 +18,12 @@
 <link rel="manifest" href="manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700&display=swap">
-<style>
-  :root { --fondo: #24585e; --claro: #7cc4c8; --texto: #ffffff; }
-  html, body { margin: 0; height: 100%; background: var(--fondo); color: var(--texto); overflow: hidden;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-  /* la app de Google ocupa toda la pantalla; en iPhone instalado respeta la muesca */
-  #app { position: fixed; left: 0; right: 0; top: env(safe-area-inset-top, 0px); bottom: 0; width: 100%;
-    height: calc(100% - env(safe-area-inset-top, 0px)); border: 0; background: #0e1112; }
-  body { background: #0e1112; }
-  #carga { position: fixed; inset: 0; background: var(--fondo); z-index: 3; display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 16px; text-align: center; padding: 24px 16px; transition: opacity .3s; }
-  #carga.off { opacity: 0; pointer-events: none; }
-  /* animación de carga: la llave aprieta la tuerca del «+» de I+M */
-  .llv{width:200px;height:166px;display:block;font-family:"Barlow Condensed","Arial Narrow","Liberation Sans Narrow","DejaVu Sans Condensed",system-ui,sans-serif;font-weight:700}
-.llv .tuerca{transform-origin:112px 72px;animation:tuerca 1.6s cubic-bezier(.3,0,.2,1) infinite}
-.llv .llave{transform-origin:112px 72px;animation:llave 1.6s cubic-bezier(.3,0,.2,1) infinite}
-.llv .li{transform-origin:56px 98px;animation:li 1.6s cubic-bezier(.3,0,.2,1) infinite}
-.llv .lm{transform-origin:170px 98px;animation:lm 1.6s cubic-bezier(.3,0,.2,1) infinite}
-@keyframes tuerca{0%{transform:rotate(0)}45%{transform:rotate(60deg)}100%{transform:rotate(60deg)}}
-@keyframes llave{0%{transform:rotate(-22deg) translate(0,0)}45%{transform:rotate(38deg) translate(0,0)}52%{transform:rotate(38deg) translate(0,0)}
-  60%{transform:rotate(38deg) translate(0,10px)}72%{transform:rotate(-22deg) translate(0,10px)}80%{transform:rotate(-22deg) translate(0,0)}100%{transform:rotate(-22deg) translate(0,0)}}
-/* las letras reciben el apretón: se inclinan hacia afuera y vuelven */
-@keyframes li{0%,30%{transform:rotate(0) scale(1)}45%{transform:rotate(-9deg) scale(1,.94)}58%{transform:rotate(2deg) scale(1,1.02)}68%,100%{transform:rotate(0) scale(1)}}
-@keyframes lm{0%,30%{transform:rotate(0) scale(1)}45%{transform:rotate(9deg) scale(1,.94)}58%{transform:rotate(-2deg) scale(1,1.02)}68%,100%{transform:rotate(0) scale(1)}}
-@media (prefers-reduced-motion:reduce){.llv .tuerca,.llv .llave,.llv .li,.llv .lm{animation:none}}
-</style>
+<style>html,body{margin:0;height:100%;background:#24585e}</style>
 </head>
 <body>
-<iframe id="app" title="I+M Mantención" allow="camera; microphone; geolocation; clipboard-read; clipboard-write; fullscreen; web-share" allowfullscreen></iframe>
-<div id="carga">
-  <svg class="llv" viewBox="0 0 240 200" aria-hidden="true">
-  <!-- I + M: el «+» es la tuerca que aprieta la llave -->
-  <text class="li" x="56" y="98" font-size="76" fill="#ffffff" text-anchor="middle">I</text>
-  <text class="lm" x="170" y="98" font-size="76" fill="#ffffff" text-anchor="middle">M</text>
-  <!-- llave de boca: cabeza alrededor de la tuerca, mango largo hacia abajo -->
-  <g class="llave">
-    <mask id="boca"><rect width="240" height="200" fill="#fff"/><rect x="98" y="30" width="28" height="54" fill="#000"/></mask>
-    <circle cx="112" cy="72" r="22" fill="#dfe9ea" mask="url(#boca)"/>
-    <path d="M112 90 L112 178" stroke="#dfe9ea" stroke-width="12" stroke-linecap="round"/>
-    <path d="M112 100 L112 170" stroke="#ffffff" stroke-width="3" stroke-linecap="round" opacity=".7"/>
-    <circle cx="112" cy="176" r="4" fill="#24585e" opacity=".35"/>
-  </g>
-  <!-- tuerca -->
-  <g class="tuerca">
-    <polygon points="112,56 126,64 126,80 112,88 98,80 98,64" fill="#7cc4c8"/>
-    <polygon points="112,61 122,66.5 122,77.5 112,83 102,77.5 102,66.5" fill="#5ea6ab"/>
-    <circle cx="112" cy="72" r="5" fill="#24585e"/>
-  </g>
-</svg>
-  <p>Abriendo I+M Mantención…</p>
-  <a class="btn" id="ir" href="#" hidden>Entrar</a>
-</div>
-<div id="inst">
-  <img src="icono-192.png" alt="">
-  <div><b id="instT">Instalar I+M como app</b><small id="instS">Queda en tu pantalla de inicio con su ícono.</small></div>
-  <button class="btn" id="instB" type="button">Instalar</button>
-  <button class="x" id="instX" type="button" aria-label="Cerrar">×</button>
-</div>
 <script>
-  // Única dirección de la app (la misma que ya tiene el equipo). Esta página no contiene datos ni claves.
-  var APP = 'https://script.google.com/macros/s/AKfycbwx5dVRtiMdf1LwXNkhXkhAoQt-VVjq6vHr4d5jpD7unWbl6t6mJLILWZUEeo97Dxht3A/exec?app';
-  // iPhone/iPad: Safari no guarda la clave ni el patrón dentro de una app instalada con la app de Google adentro.
-  // Por eso en Apple se usa la página ios.html: mismo ícono, pero abre la app en Safari (ahí sí se guarda todo).
-  var esIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-  var fr = document.getElementById('app'), carga = document.getElementById('carga'), ir = document.getElementById('ir');
-  var ok = /^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec\?app$/.test(APP);
-  if (ok) {
-    ir.href = APP;
-    fr.src = APP;
-    // la cortina se quita cuando la app avisa que ya se dibujó; si no avisa (versión vieja del servidor o sin señal), se ofrece entrar directo
-    setTimeout(function () { if (!carga.classList.contains('off')) { ir.hidden = false; carga.querySelector('p').textContent = 'La app no respondió desde aquí. Entra directo:'; } }, 12000);
-  } else {
-    carga.querySelector('p').textContent = 'Falta configurar la dirección';
-  }
-  // la app pide recargar (botón ↻ adentro): se vuelve a pedir a Google desde aquí
-  window.addEventListener('message', function (e) {
-    var deGoogle = e.origin === 'https://script.google.com' || /\.googleusercontent\.com$/.test(e.origin);
-    // memoria de la app (clave, patrón, preferencias): se guarda aquí, en el origen propio, porque en iPhone la app de adentro no puede guardar nada
-    if (deGoogle && e.data && e.data.im === 'ls-get') {
-      var d = {}; try { for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); if (k.indexOf('app:') === 0) d[k.slice(4)] = localStorage.getItem(k); } } catch (x) {}
-      try { e.source.postMessage({ im: 'ls-datos', datos: d }, e.origin); } catch (x) {}
-    }
-    if (deGoogle && e.data && e.data.im === 'ls-set') { try { localStorage.setItem('app:' + e.data.k, String(e.data.v)); } catch (x) {} }
-    if (deGoogle && e.data && e.data.im === 'ls-del') { try { localStorage.removeItem('app:' + e.data.k); } catch (x) {} }
-    if (deGoogle && e.data && e.data.im === 'listo') { carga.classList.add('off'); ir.hidden = true; }
-    if (deGoogle && e.data && e.data.im === 'recargar' && ok) { carga.classList.remove('off'); fr.src = 'about:blank'; setTimeout(function () { fr.src = APP; }, 50); }
-  });
-  // ---- instalación como app ----
-  var instalada = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
-  var inst = document.getElementById('inst'), instB = document.getElementById('instB'), instS = document.getElementById('instS');
-  var pedirInst = null, pedido = /instalar/.test(location.search);
-  if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').catch(function () {}); }
-  function mostrarInst() { if (instalada) return; inst.classList.add('on'); }
-  window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); pedirInst = e; if (pedido || !localStorage.getItem('instNo')) mostrarInst(); });
-  instB.addEventListener('click', function () {
-    if (pedirInst) { pedirInst.prompt(); pedirInst.userChoice.then(function () { inst.classList.remove('on'); pedirInst = null; }); return; }
-    if (esIOS) { instS.textContent = 'En Safari: toca Compartir (cuadrado con flecha) → «Agregar a pantalla de inicio» → Agregar.'; instB.hidden = true; return; }
-    instS.textContent = 'En Chrome: menú ⋮ → «Instalar aplicación» (o «Agregar a pantalla de inicio»).'; instB.hidden = true;
-  });
-  document.getElementById('instX').addEventListener('click', function () { inst.classList.remove('on'); try { localStorage.setItem('instNo', '1'); } catch (e) {} });
-  window.addEventListener('appinstalled', function () { inst.classList.remove('on'); });
-  if (!instalada && (pedido || (esIOS && !localStorage.getItem('instNo')))) { setTimeout(mostrarInst, 1200); }
-  if (pedido) { try { history.replaceState(null, '', location.pathname); } catch (e) {} }
+  // Carga la página real sin caché: GitHub retiene los archivos 10 minutos, pero no cuando la dirección cambia (?t=…).
+  var sc = document.createElement('script'); sc.src = 'entrada.js?t=' + Date.now(); document.body.appendChild(sc);
 </script>
 </body>
 </html>
