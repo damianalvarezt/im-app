@@ -62,15 +62,15 @@
   if (ok) {
     ir.href = APP;
     fr.src = APP;
-    fr.addEventListener('load', function () { carga.classList.add('off'); });
-    // si Google no deja mostrarse adentro (o tarda mucho), se ofrece entrar directo
-    setTimeout(function () { if (!carga.classList.contains('off')) { ir.hidden = false; carga.querySelector('p').textContent = 'Está tardando. Puedes entrar directo:'; } }, 12000);
+    // la cortina se quita cuando la app avisa que ya se dibujó; si no avisa (versión vieja del servidor o sin señal), se ofrece entrar directo
+    setTimeout(function () { if (!carga.classList.contains('off')) { ir.hidden = false; carga.querySelector('p').textContent = 'La app no respondió desde aquí. Entra directo:'; } }, 12000);
   } else {
     carga.querySelector('p').textContent = 'Falta configurar la dirección';
   }
   // la app pide recargar (botón ↻ adentro): se vuelve a pedir a Google desde aquí
   window.addEventListener('message', function (e) {
     var deGoogle = e.origin === 'https://script.google.com' || /\.googleusercontent\.com$/.test(e.origin);
+    if (deGoogle && e.data && e.data.im === 'listo') { carga.classList.add('off'); ir.hidden = true; }
     if (deGoogle && e.data && e.data.im === 'recargar' && ok) { carga.classList.remove('off'); fr.src = 'about:blank'; setTimeout(function () { fr.src = APP; }, 50); }
   });
   // ---- instalación como app ----
