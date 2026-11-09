@@ -1,0 +1,18 @@
+{
+  "id": "./",
+  "name": "I+M Proveedores",
+  "short_name": "I+M Prov.",
+  "description": "Portal de proveedores · Ingeniería y Mantenimiento · DoubleTree by Hilton Santiago Vitacura",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#24585e",
+  "theme_color": "#24585e",
+  "lang": "es",
+  "icons": [
+    { "src": "../icono-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "../icono-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "../icono-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

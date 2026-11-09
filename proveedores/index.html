@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<title>I+M Proveedores</title>
+<meta name="application-name" content="I+M Proveedores">
+<meta name="apple-mobile-web-app-title" content="I+M Proveedores">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#24585e">
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32.png">
+<link rel="icon" type="image/svg+xml" href="../icono.svg">
+<style>
+  :root { --fondo: #24585e; --claro: #7cc4c8; --texto: #ffffff; }
+  html, body { margin: 0; height: 100%; background: #f3f4f2; color: var(--texto); overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  #portal { position: fixed; left: 0; right: 0; top: env(safe-area-inset-top, 0px); bottom: 0; width: 100%;
+    height: calc(100% - env(safe-area-inset-top, 0px)); border: 0; background: #f3f4f2; }
+  #carga { position: fixed; inset: 0; background: var(--fondo); z-index: 3; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 16px; text-align: center; padding: 24px 16px; box-sizing: border-box; transition: opacity .3s; }
+  #carga.off { opacity: 0; pointer-events: none; }
+  #carga img { width: 96px; height: 96px; border-radius: 22px; animation: lat 1.6s ease-in-out infinite; }
+  @keyframes lat { 50% { transform: scale(.94); opacity: .8; } }
+  @media (prefers-reduced-motion: reduce) { #carga img { animation: none; } }
+  #carga p { margin: 0; opacity: .9; max-width: 34ch; line-height: 1.4; }
+  .btn { color: var(--fondo); background: var(--claro); padding: 12px 22px; border-radius: 12px; font: inherit; font-weight: 600;
+    text-decoration: none; border: 0; cursor: pointer; }
+  #inst { position: fixed; left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom, 0px)); z-index: 5;
+    background: #1f2527; color: #eef1f0; border: 1px solid #343d40; border-radius: 14px; padding: 12px 14px;
+    display: none; align-items: center; gap: 12px; box-shadow: 0 10px 30px rgba(0,0,0,.4); font-size: 15px; }
+  #inst.on { display: flex; }
+  #inst img { width: 40px; height: 40px; border-radius: 10px; flex: none; }
+  #inst div { flex: 1; min-width: 0; line-height: 1.3; }
+  #inst small { display: block; opacity: .8; font-size: 13px; }
+  #inst .x { background: transparent; color: #a3acae; border: 0; font-size: 22px; padding: 4px 8px; cursor: pointer; }
+</style>
+</head>
+<body>
+<iframe id="portal" title="Portal de proveedores I+M" allow="camera; clipboard-read; clipboard-write; fullscreen; web-share" hidden></iframe>
+<div id="carga">
+  <img src="../icono-192.png" alt="">
+  <p id="txt">Cargando portal de proveedores…</p>
+  <a class="btn" id="ir" href="#" hidden>Abrir portal</a>
+</div>
+<div id="inst">
+  <img src="../icono-192.png" alt="">
+  <div><b>Instalar como app</b><small id="instS">Queda en tu pantalla de inicio con el ícono I+M.</small></div>
+  <button class="btn" id="instB" type="button">Instalar</button>
+  <button class="x" id="instX" type="button" aria-label="Cerrar">×</button>
+</div>
+<script>
+(function () {
+  // Portal de proveedores I+M. Esta página es pública y no contiene datos: solo muestra el portal (Google) adentro.
+  // El enlace personal llega como …/proveedores/#p=<token>; el token queda guardado en este celular para abrir desde el ícono.
+  // Igual se pide el PIN en cada ingreso.
+  var BASE = 'https://script.google.com/macros/s/AKfycbwx5dVRtiMdf1LwXNkhXkhAoQt-VVjq6vHr4d5jpD7unWbl6t6mJLILWZUEeo97Dxht3A/exec';
+  var esIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  var instalada = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  var fr = document.getElementById('portal'), carga = document.getElementById('carga'), txt = document.getElementById('txt'), ir = document.getElementById('ir');
+  function leer() { try { return localStorage.getItem('prov:tok') || ''; } catch (e) { return ''; } }
+  function guardar(t) { try { localStorage.setItem('prov:tok', t); } catch (e) {} }
+  var m = /(?:^|[#&?])p=([a-f0-9]{32,64})(?:&|$)/.exec(location.hash) || /(?:^|[?&])p=([a-f0-9]{32,64})(?:&|$)/.exec(location.search);
+  var tok = m ? m[1] : leer();
+  if (m) guardar(tok);
+  // Android/PC: el ícono abre «./» y el token sale de la memoria, así que se limpia la dirección.
+  // iPhone/iPad: se deja el token en la dirección, porque el ícono guarda la dirección exacta (y su memoria puede ser otra).
+  if (m && !esIOS) { try { history.replaceState(null, '', location.pathname); } catch (e) {} }
+  // El manifiesto (instalación como app) solo en Android/PC: en iPhone se usa la dirección con el token.
+  if (!esIOS) { var lk = document.createElement('link'); lk.rel = 'manifest'; lk.href = 'manifest.json'; document.head.appendChild(lk); }
+  if (!tok) {
+    txt.textContent = 'Para entrar, abre el enlace personal que te enviamos por WhatsApp. Si lo perdiste, pídelo al área de Ingeniería y Mantención.';
+    carga.querySelector('img').style.animation = 'none';
+  } else {
+    var url = BASE + '?p=' + tok;
+    ir.href = url;
+    fr.hidden = false;
+    fr.src = url;
+    var quitar = function () { carga.classList.add('off'); ir.hidden = true; };
+    fr.addEventListener('load', function () { setTimeout(quitar, 600); });
+    setTimeout(function () { if (!carga.classList.contains('off')) { ir.hidden = false; txt.textContent = 'El portal está tardando. Puedes abrirlo directo:'; } }, 15000);
+    window.addEventListener('message', function (e) {
+      var deGoogle = e.origin === 'https://script.google.com' || /\.googleusercontent\.com$/.test(e.origin);
+      if (deGoogle && e.data && e.data.im === 'listo') quitar();
+    });
+  }
+  // ---- instalación como app ----
+  var inst = document.getElementById('inst'), instB = document.getElementById('instB'), instS = document.getElementById('instS'), pedirInst = null;
+  function no() { try { return !!localStorage.getItem('prov:instNo'); } catch (e) { return false; } }
+  function mostrar() { if (!instalada && tok) inst.classList.add('on'); }
+  if ('serviceWorker' in navigator && !esIOS) navigator.serviceWorker.register('sw.js').catch(function () {});
+  window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); pedirInst = e; if (!no()) mostrar(); });
+  instB.addEventListener('click', function () {
+    if (pedirInst) { pedirInst.prompt(); pedirInst.userChoice.then(function () { inst.classList.remove('on'); pedirInst = null; }); return; }
+    if (esIOS) { instS.textContent = 'En Safari: toca Compartir (cuadrado con flecha) → «Agregar a inicio» → Agregar.'; instB.hidden = true; return; }
+    instS.textContent = 'En Chrome: menú ⋮ → «Instalar aplicación» (o «Agregar a pantalla de inicio»).'; instB.hidden = true;
+  });
+  document.getElementById('instX').addEventListener('click', function () { inst.classList.remove('on'); try { localStorage.setItem('prov:instNo', '1'); } catch (e) {} });
+  window.addEventListener('appinstalled', function () { inst.classList.remove('on'); });
+  if (esIOS && !instalada && !no()) setTimeout(mostrar, 1500);
+})();
+</script>
+</body>
+</html>
