@@ -10,11 +10,33 @@ document.body.innerHTML="<iframe id=\"app\" title=\"I+M Mantenci\u00f3n\" allow=
   var esIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   var fr = document.getElementById('app'), carga = document.getElementById('carga'), ir = document.getElementById('ir');
   var ok = /^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec\?app$/.test(APP);
+  var appWin = null, conPing = false, tCarga = null, nPing = 0, esperaPong = null, ocultaDesde = 0;
+  // la cortina se quita cuando la app avisa que ya se dibujó; si no avisa (versión vieja del servidor o sin señal), se ofrece entrar directo
+  function cargar(txt) {
+    appWin = null; carga.classList.remove('off'); ir.hidden = true;
+    carga.querySelector('p').textContent = txt || 'Cargando Ingeniería + Mantenimiento…';
+    fr.src = 'about:blank'; setTimeout(function () { fr.src = APP; }, 50);
+    clearTimeout(tCarga);
+    tCarga = setTimeout(function () { if (!carga.classList.contains('off')) { ir.hidden = false; carga.querySelector('p').textContent = 'La app no respondió desde aquí. Entra directo:'; } }, 12000);
+  }
+  // v4.65: al volver de segundo plano (pantalla bloqueada, otra app), Android a veces descarta la app de adentro y queda todo negro.
+  // Se le pregunta «¿sigues viva?» dos veces; si no contesta, se vuelve a cargar sola. Así nadie tiene que cerrar la app a mano.
+  function ping() { if (!appWin) return; try { appWin.postMessage({ im: 'ping', n: ++nPing }, '*'); } catch (x) {} }
+  function revisarViva() {
+    if (!ok || esperaPong || !carga.classList.contains('off')) return;
+    if (!appWin || appWin.closed) { cargar('Reconectando…'); return; }
+    if (!conPing) return; // app de adentro aún sin esta función: no se arriesga una recarga
+    ping();
+    esperaPong = { a: setTimeout(ping, 2500), b: setTimeout(function () { esperaPong = null; cargar('Reconectando…'); }, 6000) };
+  }
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'hidden') { ocultaDesde = Date.now(); return; }
+    if (ocultaDesde && Date.now() - ocultaDesde > 3000) setTimeout(revisarViva, 300);
+  });
+  window.addEventListener('pageshow', function (e) { if (e.persisted) setTimeout(revisarViva, 300); });
   if (ok) {
     ir.href = APP;
-    fr.src = APP;
-    // la cortina se quita cuando la app avisa que ya se dibujó; si no avisa (versión vieja del servidor o sin señal), se ofrece entrar directo
-    setTimeout(function () { if (!carga.classList.contains('off')) { ir.hidden = false; carga.querySelector('p').textContent = 'La app no respondió desde aquí. Entra directo:'; } }, 12000);
+    cargar();
   } else {
     carga.querySelector('p').textContent = 'Falta configurar la dirección';
   }
@@ -33,8 +55,9 @@ document.body.innerHTML="<iframe id=\"app\" title=\"I+M Mantenci\u00f3n\" allow=
       var p = e.data.p; p = Array.isArray(p) ? p.slice(0, 10).map(function (n) { return Math.max(0, Math.min(1000, +n || 0)); }) : Math.max(0, Math.min(1000, +p || 0));
       try { navigator.vibrate(p); } catch (x) {}
     }
-    if (deGoogle && e.data && e.data.im === 'listo') { carga.classList.add('off'); ir.hidden = true; }
-    if (deGoogle && e.data && e.data.im === 'recargar' && ok) { carga.classList.remove('off'); fr.src = 'about:blank'; setTimeout(function () { fr.src = APP; }, 50); }
+    if (deGoogle && e.data && e.data.im === 'listo') { appWin = e.source; carga.classList.add('off'); ir.hidden = true; clearTimeout(tCarga); ping(); }
+    if (deGoogle && e.data && e.data.im === 'pong') { conPing = true; if (esperaPong) { clearTimeout(esperaPong.a); clearTimeout(esperaPong.b); esperaPong = null; } }
+    if (deGoogle && e.data && e.data.im === 'recargar' && ok) { cargar(); }
   });
   // ---- instalación como app ----
   var instalada = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
