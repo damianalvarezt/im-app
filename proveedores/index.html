@@ -24,9 +24,35 @@
   #carga { position: fixed; inset: 0; background: var(--fondo); z-index: 3; display: flex; flex-direction: column;
     align-items: center; justify-content: center; gap: 16px; text-align: center; padding: 24px 16px; box-sizing: border-box; transition: opacity .3s; }
   #carga.off { opacity: 0; pointer-events: none; }
-  #carga img { width: 96px; height: 96px; border-radius: 22px; animation: lat 1.6s ease-in-out infinite; }
-  @keyframes lat { 50% { transform: scale(.94); opacity: .8; } }
-  @media (prefers-reduced-motion: reduce) { #carga img { animation: none; } }
+  /* animación oficial de carga I+M (la misma de la app): la llave aprieta la tuerca del «+» */
+.llv{width:184px;height:115px;display:block;overflow:visible;margin:0;font-family:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;font-weight:700}
+/* la I es una llave doble: va hasta la tuerca, la aprieta y vuelve a su lugar */
+.llv .lli{transform-origin:63.5px 42.6px;animation:lli 2.6s cubic-bezier(.35,0,.25,1) infinite}
+.llv .tuerca{transform-origin:98px 72px;animation:tuerca 2.6s cubic-bezier(.35,0,.25,1) infinite}
+.llv .lm{transform-origin:154.5px 113px;animation:lm 2.6s cubic-bezier(.35,0,.25,1) infinite}
+@keyframes lli{
+  0%,8%{transform:translate(0,0) rotate(0)}
+  28%{transform:translate(34.5px,29.4px) rotate(15deg)}      /* llega inclinada y toma la tuerca */
+  34%{transform:translate(34.5px,29.4px) rotate(15deg)}
+  52%{transform:translate(34.5px,29.4px) rotate(75deg)}       /* aprieta (sentido del reloj) */
+  58%{transform:translate(34.5px,29.4px) rotate(75deg)}
+  64%{transform:translate(25.5px,37.4px) rotate(75deg)}       /* se suelta */
+  84%,100%{transform:translate(0,0) rotate(0)}            /* vuelve a ser la I */
+}
+@keyframes tuerca{0%,34%{transform:rotate(0)}52%,100%{transform:rotate(60deg)}}
+@keyframes lm{
+  0%,12%{transform:none}
+  20%{transform:scale(.97,1.05)}                                      /* ¡eh! se sorprende */
+  30%{transform:translate(6px,0) skewX(-14deg) scale(1.06,.86)}       /* se encoge y echa la parte de arriba hacia atrás */
+  38%{transform:translate(6px,0) skewX(-12deg) scale(1.07,.85)}       /* tiembla */
+  46%{transform:translate(7px,0) skewX(-16deg) scale(1.05,.87)}
+  55%{transform:translate(9px,0) skewX(-20deg) scale(1.12,.78)}       /* el golpe: se aplasta */
+  66%{transform:translate(-2px,0) skewX(6deg) scale(.95,1.08)}        /* rebota */
+  76%{transform:translate(1px,0) skewX(-2deg) scale(1.02,.98)}
+  84%,100%{transform:none}
+}
+@media (prefers-reduced-motion:reduce){.llv .lli,.llv .tuerca,.llv .lm{animation:none}}
+  #carga .llv { margin-bottom: 22px; }
   #carga p { margin: 0; opacity: .9; max-width: 34ch; line-height: 1.4; }
   .btn { color: var(--fondo); background: var(--claro); padding: 12px 22px; border-radius: 12px; font: inherit; font-weight: 600;
     text-decoration: none; border: 0; cursor: pointer; }
@@ -43,7 +69,19 @@
 <body>
 <iframe id="portal" title="Portal de proveedores I+M" allow="camera; clipboard-read; clipboard-write; fullscreen; web-share" hidden></iframe>
 <div id="carga">
-  <img src="../icono-192.png" alt="">
+  <svg class="llv" viewBox="40 21 160 100" aria-hidden="true">
+  <path class="lm" fill="#ffffff" d="M119.5 113 V31 H133.5 L154.5 84 L175.5 31 H189.5 V113 H177.5 V60 L158.5 104 H150.5 L131.5 60 V113 Z"/>
+  <g class="tuerca">
+    <polygon points="106.7,72.0 102.3,79.5 93.7,79.5 89.3,72.0 93.7,64.5 102.3,64.5" fill="#7cc4c8"/>
+    <polygon points="103.7,72.0 100.9,77.0 95.1,77.0 92.3,72.0 95.1,67.0 100.9,67.0" fill="#5ea6ab"/>
+    <circle cx="98" cy="72" r="2.8" fill="#24585e"/>
+  </g>
+  <g class="lli"><g transform="translate(63.5 72) scale(1.05) translate(-63.5 -72)">
+    <g transform="rotate(-15 63.5 44)"><mask id="c1"><rect x="0" y="0" width="240" height="180" fill="#fff"/><rect x="56.0" y="1.5" width="15.0" height="45" rx="1.5" fill="#000"/><rect x="47.5" y="-6.399999999999999" width="32" height="40" fill="#000"/></mask><circle cx="63.5" cy="44" r="13" fill="#ffffff" mask="url(#c1)"/></g>
+    <g transform="rotate(-15 63.5 100)"><mask id="c2"><rect x="0" y="0" width="240" height="180" fill="#fff"/><rect x="56.0" y="97.5" width="15.0" height="45" rx="1.5" fill="#000"/><rect x="47.5" y="110.4" width="32" height="40" fill="#000"/></mask><circle cx="63.5" cy="100" r="13" fill="#ffffff" mask="url(#c2)"/></g>
+    <rect x="57.5" y="48" width="12" height="48" fill="#ffffff"/>
+  </g></g>
+</svg>
   <p id="txt">Cargando portal de proveedores…</p>
   <a class="btn" id="ir" href="#" hidden>Abrir portal</a>
 </div>
@@ -74,7 +112,7 @@
   if (!esIOS) { var lk = document.createElement('link'); lk.rel = 'manifest'; lk.href = 'manifest.json'; document.head.appendChild(lk); }
   if (!tok) {
     txt.textContent = 'Para entrar, abre el enlace personal que te enviamos por WhatsApp. Si lo perdiste, pídelo al área de Ingeniería y Mantención.';
-    carga.querySelector('img').style.animation = 'none';
+    carga.querySelectorAll('.llv *').forEach(function (x) { x.style.animation = 'none'; });
   } else {
     var url = BASE + '?p=' + tok;
     ir.href = url;
