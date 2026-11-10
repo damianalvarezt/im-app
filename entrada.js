@@ -78,6 +78,8 @@ document.body.innerHTML="<iframe id=\"app\" title=\"I+M Mantenci\u00f3n\" allow=
   function fidMostrar(m, src, org) {
     fidReq = { n: m.n, modo: m.modo === 'activar' ? 'activar' : 'entrar', nombre: String(m.nombre || '').slice(0, 60), id: m.id || '', salt: m.salt || '', src: src, org: org };
     fidT.textContent = m.texto || 'Face ID'; fidE.textContent = ''; fidB.disabled = false; fidBox.classList.add('on');
+    // v4.70: al entrar se pide Face ID solo, sin tocar el botón (un toque menos). Si Safari no lo permite sin toque, queda el botón.
+    if (fidReq.modo === 'entrar' && document.visibilityState === 'visible') setTimeout(function () { fidIniciar(true); }, 150);
   }
   function fidCerrar() { fidReq = null; fidBox.classList.remove('on'); fidE.textContent = ''; }
   function fidResponder(r) {
@@ -85,7 +87,9 @@ document.body.innerHTML="<iframe id=\"app\" title=\"I+M Mantenci\u00f3n\" allow=
     try { q.src.postMessage(r, q.org); } catch (x) {}
   }
   function fidPrf(cred) { var x = cred && cred.getClientExtensionResults ? cred.getClientExtensionResults() : {}; return x && x.prf ? x.prf : null; }
-  fidB.addEventListener('click', function () {
+  fidB.addEventListener('click', function () { fidIniciar(false); });
+  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible' && fidReq && fidReq.modo === 'entrar' && !fidB.disabled) setTimeout(function () { fidIniciar(true); }, 400); });
+  function fidIniciar(auto) {
     var q = fidReq; if (!q || fidB.disabled) return;
     fidB.disabled = true; fidE.textContent = '';
     var salt = ub64(q.salt), p;
@@ -116,9 +120,10 @@ document.body.innerHTML="<iframe id=\"app\" title=\"I+M Mantenci\u00f3n\" allow=
     p.catch(function (er) {
       if (fidReq !== q) return;
       fidB.disabled = false;
+      if (auto) return; // el intento automático no muestra error: queda el botón para tocarlo
       fidE.textContent = er && er.name === 'NotAllowedError' ? 'No se completó Face ID. Toca el botón para intentar otra vez.' : 'Face ID no respondió. Toca para intentar otra vez.';
     });
-  });
+  }
   // ---- instalación como app ----
   var instalada = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
   var inst = document.getElementById('inst'), instB = document.getElementById('instB'), instS = document.getElementById('instS');
