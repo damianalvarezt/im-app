@@ -30,8 +30,11 @@
     var quitar = function () { carga.classList.add('off'); ir.hidden = true; };
     fr.addEventListener('load', function () { setTimeout(quitar, 600); });
     setTimeout(function () { if (!carga.classList.contains('off')) { ir.hidden = false; txt.textContent = 'El portal está tardando. Puedes abrirlo directo:'; } }, 15000);
+    var deAdentro = function (w) { try { return !!w && w !== window && w.top === window; } catch (x) { return false; } };
     window.addEventListener('message', function (e) {
-      var deGoogle = e.origin === 'https://script.google.com' || /\.googleusercontent\.com$/.test(e.origin);
+      // Seguridad (13-11-2026): solo se atiende a la app que esta misma página muestra adentro. Antes bastaba con que el mensaje viniera de
+    // cualquier página alojada en googleusercontent.com (cualquiera puede crear una) y esa página podía leer y escribir la memoria de la app.
+    var deGoogle = (e.origin === 'https://script.google.com' || /^https:\/\/[a-z0-9-]+\.googleusercontent\.com$/.test(e.origin)) && deAdentro(e.source);
       if (deGoogle && e.data && e.data.im === 'listo') quitar();
     });
   }

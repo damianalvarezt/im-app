@@ -40,9 +40,13 @@ document.body.innerHTML="<iframe id=\"app\" title=\"I+M Mantenci\u00f3n\" allow=
   } else {
     carga.querySelector('p').textContent = 'Falta configurar la dirección';
   }
+  // ¿el mensaje viene de un marco que vive DENTRO de esta página? (la app de Google va en marcos anidados; todos tienen esta página como la de más arriba)
+  function deAdentro(w) { try { return !!w && w !== window && window.top === window && w.top === window; } catch (x) { return false; } }
   // la app pide recargar (botón ↻ adentro): se vuelve a pedir a Google desde aquí
   window.addEventListener('message', function (e) {
-    var deGoogle = e.origin === 'https://script.google.com' || /\.googleusercontent\.com$/.test(e.origin);
+    // Seguridad (13-11-2026): solo se atiende a la app que esta misma página muestra adentro. Antes bastaba con que el mensaje viniera de
+    // cualquier página alojada en googleusercontent.com (cualquiera puede crear una) y esa página podía leer y escribir la memoria de la app.
+    var deGoogle = (e.origin === 'https://script.google.com' || /^https:\/\/[a-z0-9-]+\.googleusercontent\.com$/.test(e.origin)) && deAdentro(e.source);
     // memoria de la app (clave, patrón, preferencias): se guarda aquí, en el origen propio, porque en iPhone la app de adentro no puede guardar nada
     if (deGoogle && e.data && e.data.im === 'ls-get') {
       var d = {}; try { for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); if (k.indexOf('app:') === 0) d[k.slice(4)] = localStorage.getItem(k); } } catch (x) {}
